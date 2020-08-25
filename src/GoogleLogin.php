@@ -55,7 +55,7 @@ class GoogleLogin extends BaseLogin
 	 */
 	public function setState($state)
 	{
-		$this->helper->getPersistentDataHandler()->set('state', $state);
+		$this->client->setState($state);
 	}
 
 
