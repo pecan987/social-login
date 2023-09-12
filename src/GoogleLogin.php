@@ -1,16 +1,18 @@
 <?php
+
 declare(strict_types=1);
 
 namespace VencaX;
 
 use Exception;
+use Google;
 use Nette;
 
 class GoogleLogin extends BaseLogin
 {
 	public const SOCIAL_NAME = 'google';
 
-	/** @var Google_Client */
+	/** @var \Google_Client */
 	private $client;
 
 	/** @var array scope */
@@ -24,14 +26,18 @@ class GoogleLogin extends BaseLogin
 	 * @param Nette\Http\IResponse $httpResponse
 	 * @param Nette\Http\IRequest $httpRequest
 	 */
-	public function __construct($params, $cookieName, Nette\Http\IResponse $httpResponse, Nette\Http\IRequest $httpRequest)
-	{
+	public function __construct(
+		$params,
+		$cookieName,
+		Nette\Http\IResponse $httpResponse,
+		Nette\Http\IRequest $httpRequest
+	) {
 		$this->params = $params;
 		$this->cookieName = $cookieName;
 		$this->httpResponse = $httpResponse;
 		$this->httpRequest = $httpRequest;
 
-		$this->client = new \Google_Client();
+		$this->client = new Google\Client;
 
 		$this->client->setClientId($this->params['clientId']);
 		$this->client->setClientSecret($this->params['clientSecret']);
@@ -55,7 +61,7 @@ class GoogleLogin extends BaseLogin
 	 */
 	public function setState($state)
 	{
-		$this->helper->getPersistentDataHandler()->set('state', $state);
+		$this->client->setState($state);
 	}
 
 
@@ -74,7 +80,7 @@ class GoogleLogin extends BaseLogin
 	/**
 	 * Return info about login user
 	 * @param $code
-	 * @return \Google_Service_Oauth2_Userinfoplus
+	 * @return \Google_Service_Oauth2_Userinfo
 	 * @throws Exception
 	 */
 	public function getMe($code)
