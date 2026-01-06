@@ -8,7 +8,7 @@ social-login
 [![License](https://poser.pugx.org/venca-x/social-login/license.svg)](https://packagist.org/packages/venca-x/social-login)
 
 
-Nette addon for logint with social networks
+Nette addon for login with social networks (Facebook, Google, Twitter, Seznam.cz)
 
 Version 1.1.0 use Facebook App API version v 2.6
 [All permissions for Facebook fields](https://developers.facebook.com/docs/graph-api/reference/user/)
@@ -56,6 +56,10 @@ config.neon
 			consumerKey: '123456789'
 			consumerSecret: '987654321'
 			callbackURL: 'http://www.muj-web.cz/homepage/twitter-login'
+		seznam:
+			clientId: '123456789'
+			clientSecret: '987654321'
+			callbackURL: 'http://www.muj-web.cz/homepage/seznam-login'
 
 	nette:
 		session:
@@ -63,7 +67,7 @@ config.neon
 
     services:
         ...
-        - Vencax\SocialLogin({ facebook: %facebook%, google: %google%, twitter: %twitter% }, 'domain-social-login' )
+        - Vencax\SocialLogin({ facebook: %facebook%, google: %google%, twitter: %twitter%, seznam: %seznam% }, 'domain-social-login' )
 ```
 Where 'domain-social-login' replace to your unique identifier (it's cookie name for last used services for login)
 
@@ -88,12 +92,14 @@ BasePresenter.php
     //$facebookLoginUrl = $this->socialLogin->facebook->getLoginUrl();
     //$googleLoginUrl = $this->socialLogin->google->getLoginUrl();
     //$twitterLoginUrl = $this->socialLogin->twitter->getLoginUrl();
+    //$seznamLoginUrl = $this->socialLogin->seznam->getLoginUrl();
 
     //dump( $this->socialLogin->getSocialLoginCookie() );
 
     //$this->template->facebookLastLogin = $this->socialLogin->facebook->isThisServiceLastLogin();
     //$this->template->googleLastLogin = $this->socialLogin->google->isThisServiceLastLogin();
     //$this->template->twitterLastLogin = $this->socialLogin->twitter->isThisServiceLastLogin();
+    //$this->template->seznamLastLogin = $this->socialLogin->seznam->isThisServiceLastLogin();
     ...
 ```
 
@@ -150,6 +156,23 @@ HomepagePresenter.php
             $this->redirect("Homepage:default");
         }
     }
+
+    public function actionSeznamLogin( $code, $state = NULL )
+    {
+        try
+        {
+            if ($state) $this->backlink = $state;
+            $me = $this->socialLogin->seznam->getMe( $code );
+            // $me contains: oauth_user_id, email, firstname, lastname
+            dump( $me );
+            exit();
+        }
+        catch( Exception $e )
+        {
+            $this->flashMessage( $e->getMessage(), "alert-danger" );
+            $this->redirect("Homepage:default");
+        }
+    }
     ...
 ```
 
@@ -169,3 +192,8 @@ credentials: APIs & auth -> Credentials -> Crate new Client ID -> Web applicatio
 Twitter
 -------------
 [Register a new app at dev.twitter.com/apps/](https://apps.twitter.com/app/new)
+
+Seznam.cz
+-------------
+[Register a new app at vyvojari.seznam.cz](https://vyvojari.seznam.cz/oauth/admin)
+- Scope `identity` returns: oauth_user_id, email, firstname, lastname

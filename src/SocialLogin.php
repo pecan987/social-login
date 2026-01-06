@@ -16,6 +16,9 @@ class SocialLogin extends BaseLogin
     /** @var Vencax\Twitter */
     public $twitter;
 
+    /** @var Vencax\SeznamLogin */
+    public $seznam;
+
     /**
      * @param $params params from cnofig.neon
      * @param $params $cookieName cookie name - save last used service for login
@@ -43,6 +46,11 @@ class SocialLogin extends BaseLogin
         if ( isset($this->params["twitter"]) && count( $this->params["twitter"] ) > 0 )
         {
             $this->twitter = new TwitterLogin( $this->params["twitter"], $cookieName, $session, $this->httpResponse, $this->httpRequest );
+        }
+
+        if (isset($this->params["seznam"]) && count($this->params["seznam"]) > 0)
+        {
+            $this->seznam = new SeznamLogin($this->params["seznam"], $cookieName, $this->httpResponse, $this->httpRequest);
         }
     }
 
